@@ -1,8 +1,10 @@
-import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet'
+import { MapContainer, Marker, Popup, TileLayer, CircleMarker, Circle } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
 import { useEffect, useState } from 'react'
 // import L from "leaflet"
 import { postMapData } from '../lib/api'
+
+
 
 const MapOverview = () => {
 
@@ -23,15 +25,14 @@ const MapOverview = () => {
       />
       {
         rows.map((row) => (
-          <Marker key={row.longitude_deg+row.latitude_deg} position={[row.latitude_deg , row.longitude_deg]} style={"width:48, height:48 "}>
+          <CircleMarker key={row.longitude_deg+row.latitude_deg} center={[row.latitude_deg , row.longitude_deg]} radius={20} >
             <Popup >
               Kanda.<br /> {row.latitude_deg} {row.longitude_deg}.
                <div className='h-52 w-52'></div>
             </Popup>
-          </Marker>
+          </CircleMarker>
         ))
       }
-      
     </MapContainer>
   )
 }
