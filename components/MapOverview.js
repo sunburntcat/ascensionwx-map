@@ -7,7 +7,9 @@ import { postMapData } from '../lib/api'
 
 
 const MapOverview = () => {
-
+  
+  ////////// STATES ///////////////
+  const [series, setSeries] = useState()
   const [rows, setRows] = useState([])
 
   // fetch MapData from Telos chain
