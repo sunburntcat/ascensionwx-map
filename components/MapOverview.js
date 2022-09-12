@@ -1,46 +1,48 @@
 import { MapContainer, Marker, Popup, TileLayer, CircleMarker } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
+import Temperature from "../components/Chart/Temperature"
 import { useEffect, useState } from 'react'
 import { postMapData, getActions, checkCurrentGMT, compare, getData, diff_days } from '../lib/api'
 
-function diff_(d) {
-  const today = new Date();
-  d = new Date(d);
-  const days = parseInt((today - d) / (1000 * 60 * 60 * 24));
-  const hours = parseInt(Math.abs(today - d) / (1000 * 60 * 60) % 24);
-  const minutes = parseInt(Math.abs(today.getTime() - d.getTime()) / (1000 * 60) % 60);
-  const seconds = parseInt(Math.abs(today.getTime() - d.getTime()) / (1000) % 60); 
-
-  console.log("─────────────────────")
-  if(days == 0) {
-    if(hours == 0) {
-      console.log("minutes: "+ minutes)
-      return minutes + " minute(s) ago"
-    }else{
-      console.log("hours: "+ hours)
-      return hours + " hours(s) ago"
-    }
-    
-  } else {
-    console.log("days: "+ days)
-    return days + " day(s) ago"
-  }
-}
 
 
 const MapOverview = () => {
   
   ////////// STATES ///////////////
-  const [series, setSeries] = useState()
+  const [series, setSeries] = useState([])
   const [rows, setRows] = useState([])
 
   // fetch MapData from Telos chain
-  useEffect(() => {
-    const data = postMapData().then(data => {
-      const rows = data.rows
+  useEffect( () => {
+    const fetcher = async () => {
+      // fetch post Map data
+      const data = await postMapData()
       setRows(data.rows)
-      console.log(rows)
-    })
+
+      // pull graph data (temperature)
+      const devs = []
+      for(let dev of data.rows){
+        var pulled = await puller({sensor: dev["devname"], before: 5})
+        var dic = {}
+        dic["devname"] = dev["devname"]
+        dic["latitude_deg"] = dev["latitude_deg"]
+        dic["longitude_deg"] = dev["longitude_deg"]
+        dic["temperature_c"] = dev["temperature_c"]
+        dic["unix_time_s"] = dev["unix_time_s"]
+        dic["series"] = pulled.props.data
+        devs.push(dic)
+      }
+      setRows(devs)
+      console.log(devs)
+      
+    }
+    
+    fetcher()
+
+    
+    // const template = {sensor:sensor,before:prior}
+    // const pulled = await puller()
+
     
   }, [])
   
@@ -73,7 +75,7 @@ const MapOverview = () => {
                             </span>
                         </span>
                     </p>
-                    <div className='flex gap-5'>
+                    <div className='flex gap-5 ml-5'>
                         <p className="flex space-x-3">
                             <span className="flex gap-2 text-base font-normal leading-tight text-gray-500 ">
                                 Lat: 
@@ -113,37 +115,6 @@ const MapOverview = () => {
   )
 }
 
-async function getSensorData(devname){
-  const jsonWeather = await postMapData()
-  const jsonSensor = await postMapData("sensors")
-  var resWeather = {}
-  var resSensor = {}
-  
-  for(let res of jsonWeather.rows){
-      if(res.devname == devname){
-          resWeather = {
-            unix_time_s: res.unix_time_s,
-            la: res.latitude_deg,
-            lo: res.longitude_deg,
-            last_temp: res.temperature_c
-        }
-        break
-      } 
-  }
-  for(let res of jsonSensor.rows){
-      if(res.devname ==devname){
-          resSensor = {
-            miner: res.miner,
-            time_created: res.time_created,
-      }
-      break
-    }
-  }
-  return {
-      responseWeather: resWeather,
-      responseSensor: resSensor
-  }
-}
 
 async function puller(context) {
 

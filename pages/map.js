@@ -3,7 +3,7 @@ import dynamic from 'next/dynamic';
 const MapOverview = dynamic(() => import("../components/MapOverview"), {
     loading: () => "Loading...",
     ssr: false
-  });
+});
 
 
 
