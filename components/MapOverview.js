@@ -1,7 +1,6 @@
-import { MapContainer, Marker, Popup, TileLayer, CircleMarker, Circle } from 'react-leaflet'
+import { MapContainer, Marker, Popup, TileLayer, CircleMarker } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
 import { useEffect, useState } from 'react'
-// import L from "leaflet"
 import { postMapData, getActions, checkCurrentGMT, compare, getData, diff_days } from '../lib/api'
 
 function diff_(d) {
@@ -114,13 +113,42 @@ const MapOverview = () => {
   )
 }
 
+async function getSensorData(devname){
+  const jsonWeather = await postMapData()
+  const jsonSensor = await postMapData("sensors")
+  var resWeather = {}
+  var resSensor = {}
+  
+  for(let res of jsonWeather.rows){
+      if(res.devname == devname){
+          resWeather = {
+            unix_time_s: res.unix_time_s,
+            la: res.latitude_deg,
+            lo: res.longitude_deg,
+            last_temp: res.temperature_c
+        }
+        break
+      } 
+  }
+  for(let res of jsonSensor.rows){
+      if(res.devname ==devname){
+          resSensor = {
+            miner: res.miner,
+            time_created: res.time_created,
+      }
+      break
+    }
+  }
+  return {
+      responseWeather: resWeather,
+      responseSensor: resSensor
+  }
+}
 
-// the puller data
 async function puller(context) {
 
   // get the start time and the name of the device sensor
   let d = new Date();
-  
   
   ///////////////////////////// pre config ////////////////////////////
   const _devname = context.sensor
@@ -139,7 +167,7 @@ async function puller(context) {
   // if (id == 0 ){
   //   // add 1hour to the server time
     // d.setHours( d.getHours() + 1 )
-    start = d.toISOString()
+  start = d.toISOString()
   // }
   // d.setHours( d.getHours() + 1 )
   // start = d.toISOString()
@@ -169,7 +197,6 @@ async function puller(context) {
 
     // is data collected statement ?
     const size = parsed.times.length
-
     if(size == 0){
       is_data_collected = false
     }else{
@@ -180,7 +207,6 @@ async function puller(context) {
     }
   }
   //////////////////////////////////////////////
-
 
   return {
     props: {
