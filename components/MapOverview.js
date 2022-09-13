@@ -1,10 +1,9 @@
 import { MapContainer, Marker, Popup, TileLayer, CircleMarker } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
-import Image from 'next/image'
-import BlueLoader from "../public/loader.gif"
-import Temperature from "../components/Chart/Temperature"
+import Pulse from './Pulse'
+import Temperature from './Chart/Temperature'
 import { useEffect, useState } from 'react'
-import { postMapData, getActions, checkCurrentGMT, compare, getData, diff_days } from '../lib/api'
+import { postMapData } from '../lib/api'
 
 
 
@@ -12,40 +11,41 @@ const MapOverview = () => {
   
   ////////// STATES ///////////////
   const [rows, setRows] = useState([])
-  const [isLoading, setIsLoading] = useState(false)
+  const [percent, setPercent] = useState(0)
+  const [isLoading, setIsLoading] = useState(true)
 
 
   // fetch MapData from Telos chain
   useEffect( () => {
     const fetcher = async () => {
       // fetch post Map data
-      setIsLoading(true)
       const data = await postMapData()
       setRows(data.rows)
 
-      // pull graph data (temperature)
-      const devs = []
-      for(let dev of data.rows){
-        var pulled = await puller({sensor: dev["devname"], before: 5})
-        var dic = {}
-        dic["devname"] = dev["devname"]
-        dic["latitude_deg"] = dev["latitude_deg"]
-        dic["longitude_deg"] = dev["longitude_deg"]
-        dic["temperature_c"] = dev["temperature_c"]
-        dic["unix_time_s"] = dev["unix_time_s"]
-        dic["series"] = pulled.props.data
-        devs.push(dic)
-      }
-      setRows(devs)
-      console.log(devs)
-      setIsLoading(false)
+      // // pull graph data (temperature)
+      // const devs = []
+      // var counter = 0
+      // for(let dev of data.rows) {
+        
+      //   var pulled = await puller({sensor: dev["devname"], before: 5})
+      //   var dic = {}
+      //   dic["devname"] = dev["devname"]
+      //   dic["latitude_deg"] = dev["latitude_deg"]
+      //   dic["longitude_deg"] = dev["longitude_deg"]
+      //   dic["temperature_c"] = dev["temperature_c"]
+      //   dic["unix_time_s"] = dev["unix_time_s"]
+      //   dic["series"] = pulled.props.data
+      //   devs.push(dic)
+      //   setPercent(Math.trunc(( counter*100 ) / data.rows.length))
+      //   counter = counter + 1
+      // }
+      // setRows(devs)
+      console.log(rows)
+
     }
     
     fetcher()
 
-    
-    // const template = {sensor:sensor,before:prior}
-    // const pulled = await puller()
 
     
   }, [])
@@ -57,151 +57,68 @@ const MapOverview = () => {
   }
   
   return (
-  <div>
-    {
-      (isLoading) 
-      ?
-      <div>
-        <Image src={BlueLoader} alt="Loading GIF" className='justify-center items-center'/>
-      </div>
-      :
-      <MapContainer center={[6.524400, 3.379199]} zoom={3} scrollWheelZoom={true} style={{height: "100%", width: "100%"}}>
-        <TileLayer
-          attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
-        {
-          rows.map((row) => (
-            <>
-              <Marker position={[row.latitude_deg, row.longitude_deg]} icon={L.divIcon({
-                  className: "text-black font-medium",
-                  html: "15",
-                })}>
-                  <Popup maxWidth={700} maxHeight={600}>
-                    <div className='h-[500px] w-[700px]'>
-                      <p className="flex space-x-3"> 
-                          <span className="flex gap-2 text-4xl font-normal leading-tight text-gray-500 ">
-                              Devname:
-                              <span className="text-4xl font-semibold leading-tight text-blue-500 ">
-                                  {row.devname}
-                              </span>
-                          </span>
-                      </p>
-                      <div className='flex gap-5 ml-5'>
-                          <p className="flex space-x-3">
-                              <span className="flex gap-2 text-base font-normal leading-tight text-gray-500 ">
-                                  Lat: 
-                                  <span className="text-base font-semibold leading-tight text-gray-500 ">
-                                      {row.latitude_deg}
-                                  </span>
-                              </span>
-                          </p>
-                          <p className="flex space-x-3">
-                              <span className="flex gap-2 text-base font-normal leading-tight text-gray-500 ">
-                                  Long: 
-                                  <span className="text-base font-semibold leading-tight text-gray-500 ">
-                                      {row.longitude_deg}
-                                  </span>
-                              </span>
-                          </p>
-                      </div>
-                      <div className='h-1 w-full bg-gray-200'/>
-                      <Temperature values={rows}/>
+    <MapContainer center={[6.524400, 3.379199]} zoom={3} scrollWheelZoom={true} style={{height: "100%", width: "100%"}}>
+      <TileLayer
+        attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+      />
+      {
+        rows.map((row) => (
+          <>
+            <Marker position={[row.latitude_deg, row.longitude_deg]} icon={L.divIcon({
+                className: "text-black font-medium",
+                html: Math.trunc(row.temperature_c),
+              })}>
+                <Popup maxWidth={500} maxHeight={700}>
+                  <div className='w-[500px] h-[510px]'>
+                    <p className="flex space-x-3"> 
+                        <span className="flex gap-2 text-4xl font-normal leading-tight text-gray-500 ">
+                            Devname:
+                            <span className="text-4xl font-semibold leading-tight text-blue-500 ">
+                                {row.devname}
+                            </span>
+                        </span>
+                    </p>
+                    <div className='flex gap-5 ml-5'>
+                        <p className="flex space-x-3">
+                            <span className="flex gap-2 text-base font-normal leading-tight text-gray-500 ">
+                                Lat: 
+                                <span className="text-base font-semibold leading-tight text-gray-500 ">
+                                    {row.latitude_deg}
+                                </span>
+                            </span>
+                        </p>
+                        <p className="flex space-x-3">
+                            <span className="flex gap-2 text-base font-normal leading-tight text-gray-500 ">
+                                Long: 
+                                <span className="text-base font-semibold leading-tight text-gray-500 ">
+                                    {row.longitude_deg}
+                                </span>
+                            </span>
+                        </p>
                     </div>
-                  </Popup>
-              </Marker>
-              <CircleMarker key={row.longitude_deg+row.latitude_deg} center={[row.latitude_deg , row.longitude_deg]} 
-                          radius={15} color="black" fillColor={rcolor()} opacity={1} 
-                          fillOpacity={1} weight={1.2}
-                  >
-                {/* <Popup >
-                  Kanda.<br /> {row.latitude_deg} {row.longitude_deg}.
-                  <div className='h-52 w-52 '></div>
-                </Popup> */}
-              </CircleMarker>
-              
-            </>
+                    <div className='h-1 w-full bg-gray-200'/>
+                    {/* <Temperature values={rows}/> */}
+                    <Temperature devname={row.devname} />
+                  </div>
+                </Popup>
+            </Marker>
+            <CircleMarker key={row.longitude_deg+row.latitude_deg} center={[row.latitude_deg , row.longitude_deg]} 
+                        radius={15} color="black" fillColor={rcolor()} opacity={1} 
+                        fillOpacity={1} weight={1.2}
+                >
+              {/* <Popup >
+                Kanda.<br /> {row.latitude_deg} {row.longitude_deg}.
+                <div className='h-52 w-52 '></div>
+              </Popup> */}
+            </CircleMarker>
             
-          ))
-        }
-      </MapContainer>
-    }
-  </div>
+          </>
+          
+        ))
+      }
+    </MapContainer>
   )
-}
-
-
-async function puller(context) {
-
-  // get the start time and the name of the device sensor
-  let d = new Date();
-  
-  ///////////////////////////// pre config ////////////////////////////
-  const _devname = context.sensor
-  var _before = context.before
-  if(!_before) _before = 5
-  // _before = _before+1
-  
-  d.setDate(d.getDate() - _before)
-  
-  // set the day to [today - 'before' days] in iso format
-  let start = d.toISOString()
-
-  // check GMT index time to different zone
-  var val = new Date().toString().match(/([-\+][0-9]+)\s/)[1] 
-  var id = checkCurrentGMT(val)
-  // if (id == 0 ){
-  //   // add 1hour to the server time
-    // d.setHours( d.getHours() + 1 )
-  start = d.toISOString()
-  // }
-  // d.setHours( d.getHours() + 1 )
-  // start = d.toISOString()
-  /////////////////////////////
-
-
- 
-  // get the response data
-  const res = await getActions( start )
-
-  // parse into json format
-  const json = await res.json()
-  const _actions = json.actions
-
-  const parsed = getData(_actions, _devname)
-
-  const _data = JSON.stringify(parsed)
-
-  let is_data_collected = false
-
-  ////////////////////// check result of _data ////////////////////////////////////////
-  let existing_sensor = false
-  if(_data == JSON.stringify({temperature:[],humidity:[],pressure:[],times:[]})){
-    existing_sensor = false
-  }else{
-    existing_sensor = true
-
-    // is data collected statement ?
-    const size = parsed.times.length
-    if(size == 0){
-      is_data_collected = false
-    }else{
-      const from = parsed.times[size-1]
-      const day_threshold = start
-      is_data_collected = compare(from, day_threshold)
-
-    }
-  }
-  //////////////////////////////////////////////
-
-  return {
-    props: {
-      data: parsed || JSON.stringify({}), //_data
-      existing_sensor,
-      is_data_collected,
-
-    }
-  }
 }
 
 
