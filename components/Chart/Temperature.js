@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import Pulse from '../Pulse';
 import dynamic from 'next/dynamic';
 import { conversion, getActions, checkCurrentGMT, compare, getData, diff_days } from '../../lib/api'
 
@@ -92,9 +93,9 @@ function Temperature(props) {
         {
           (isLoading) 
           ?
-          <div className='m-2'>
-            Loading...
-          </div>
+          <Pulse>
+            
+          </Pulse>
         :
         <div className='m-2'>
           <button className='ml-10 mt-10 border border-gray-200 hover:border-gray-400 bg-gray-200 rounded w-28 text-sm text-gray-700' onClick={() => { setCelcius(!celcius)}}>
