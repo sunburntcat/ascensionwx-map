@@ -87,10 +87,39 @@ const MapOverview = () => {
                         radius={15} color="black" fillColor={rcolor()} opacity={1} 
                         fillOpacity={1} weight={1.2}
                 >
-              {/* <Popup >
-                Kanda.<br /> {row.latitude_deg} {row.longitude_deg}.
-                <div className='h-52 w-52 '></div>
-              </Popup> */}
+              <Popup maxWidth={500} maxHeight={700}>
+                  <div className='w-[500px] h-[510px]'>
+                    <p className="flex space-x-3"> 
+                        <span className="flex gap-2 text-4xl font-normal leading-tight text-gray-500 ">
+                            Devname:
+                            <span className="text-4xl font-semibold leading-tight text-blue-500 ">
+                                {row.devname}
+                            </span>
+                        </span>
+                    </p>
+                    <div className='flex gap-5 ml-5'>
+                        <p className="flex space-x-3">
+                            <span className="flex gap-2 text-base font-normal leading-tight text-gray-500 ">
+                                Lat: 
+                                <span className="text-base font-semibold leading-tight text-gray-500 ">
+                                    {row.latitude_deg}
+                                </span>
+                            </span>
+                        </p>
+                        <p className="flex space-x-3">
+                            <span className="flex gap-2 text-base font-normal leading-tight text-gray-500 ">
+                                Long: 
+                                <span className="text-base font-semibold leading-tight text-gray-500 ">
+                                    {row.longitude_deg}
+                                </span>
+                            </span>
+                        </p>
+                    </div>
+                    <div className='h-1 w-full bg-gray-200'/>
+                    {/* <Temperature values={rows}/> */}
+                    <Temperature devname={row.devname} />
+                  </div>
+                </Popup>
             </CircleMarker>
             
           </>
