@@ -21,7 +21,7 @@ const MapOverview = () => {
       // fetch post Map data
       const data = await postMapData()
       setRows(data.rows)
-      console.log(rows)
+      // console.log(rows)
     }
     
     fetcher()

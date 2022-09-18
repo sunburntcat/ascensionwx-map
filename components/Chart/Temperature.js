@@ -12,6 +12,8 @@ function Temperature(props) {
   const [serieFA, setSerieFA] = useState([]);
   const [serieC, setSerieC] = useState([]);
   const [times, setTimes] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  
 
   useEffect( () => {
     const fetcher = async () => {
@@ -19,7 +21,9 @@ function Temperature(props) {
       setSerieC(pulled.props.data.temperature)
       setSerieFA(conversion(pulled.props.data.temperature))
       setTimes(pulled.props.data.times)
-      // console.log(pulled.props.data)
+      setIsLoading(false)
+      console.log(pulled.props.data)
+      console.log(props.devname)
     }
 
     fetcher()
@@ -27,8 +31,6 @@ function Temperature(props) {
 
   })
    
-  // var tmp = props.values //JSON.parse(props.values)
-  // var series_fah = conversion(tmp.temperature)
   
   var series = [{
     name: 'Temperature',
@@ -87,6 +89,13 @@ function Temperature(props) {
   
     return (
       <div className=' rounded border border-gray-200 bg-white'>
+        {
+          (isLoading) 
+          ?
+          <div className='m-2'>
+            Loading...
+          </div>
+        :
         <div className='m-2'>
           <button className='ml-10 mt-10 border border-gray-200 hover:border-gray-400 bg-gray-200 rounded w-28 text-sm text-gray-700' onClick={() => { setCelcius(!celcius)}}>
             {
@@ -95,6 +104,7 @@ function Temperature(props) {
           </button>
           <ApexCharts width="100%"  className="" options={options} series={series} type="area"/>
         </div>
+        }
       </div>
     )
   }
