@@ -21,27 +21,7 @@ const MapOverview = () => {
       // fetch post Map data
       const data = await postMapData()
       setRows(data.rows)
-
-      // // pull graph data (temperature)
-      // const devs = []
-      // var counter = 0
-      // for(let dev of data.rows) {
-        
-      //   var pulled = await puller({sensor: dev["devname"], before: 5})
-      //   var dic = {}
-      //   dic["devname"] = dev["devname"]
-      //   dic["latitude_deg"] = dev["latitude_deg"]
-      //   dic["longitude_deg"] = dev["longitude_deg"]
-      //   dic["temperature_c"] = dev["temperature_c"]
-      //   dic["unix_time_s"] = dev["unix_time_s"]
-      //   dic["series"] = pulled.props.data
-      //   devs.push(dic)
-      //   setPercent(Math.trunc(( counter*100 ) / data.rows.length))
-      //   counter = counter + 1
-      // }
-      // setRows(devs)
       console.log(rows)
-
     }
     
     fetcher()
