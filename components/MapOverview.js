@@ -31,9 +31,15 @@ const MapOverview = () => {
   }, [])
   
   // get random color
-  const rcolor = () => {
-    let items = ["#FF490D", "#FD9019", "#7BFF05", "#F5C200"]
-    return items.sort(() => 0.5 - Math.random())[0];
+  const rcolor = (t) => {
+    let items = {red:"#FF490D", green:"#7BFF05", blue:"#0000FF", white:"#FFFFFF"}
+    let color
+    if (t >= 40) color = items["red"]
+    else if (t >= 20) color = items["green"]
+    else if (t >= 0) color = items["blue"]
+    else if (t >= -20) color = items["white"]
+
+    return color
   }
   
   return (
@@ -84,7 +90,7 @@ const MapOverview = () => {
                 </Popup>
             </Marker>
             <CircleMarker key={row.longitude_deg+row.latitude_deg} center={[row.latitude_deg , row.longitude_deg]} 
-                        radius={15} color="black" fillColor={rcolor()} opacity={1} 
+                        radius={15} color="black" fillColor={rcolor(row.temperature_c)} opacity={1} 
                         fillOpacity={1} weight={1.2}
                 >
               <Popup maxWidth={500} maxHeight={700}>
